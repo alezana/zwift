@@ -1,6 +1,8 @@
 IMAGE=netbrain/zwift
 # zwift version
 TAG=latest
+# The home directory to store zwift data
+ZWIFT_HOME=~/.zwift/${USER}
 
 
 zwift:
@@ -12,12 +14,17 @@ build-zwift:
 	docker build -t ${IMAGE} .
 
 run-zwift:
-	docker run --gpus all \
-	 --privileged \
-	 --name zwift \
-	 -e DISPLAY=$DISPLAY \
-	 -v /tmp/.X11-unix:/tmp/.X11-unix \
-	${IMAGE}
+	xhost +
+	docker run \
+	-d --rm \
+	--privileged \
+	--name zwift \
+	-e DISPLAY=${DISPLAY} \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	-v /run/user/$$(id -u)/pulse:/run/user/1000/pulse \
+	-v ${ZWIFT_HOME}:/home/user/Zwift \
+	--gpus all \
+	${IMAGE}:${TAG}
 	
 pull-zwift:
 	docker pull ${IMAGE}:${TAG}
